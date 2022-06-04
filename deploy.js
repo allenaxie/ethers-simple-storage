@@ -1,12 +1,12 @@
 const ethers = require("ethers");
 const fs = require("fs");
-
+require("dotenv").config();
 
 async function main() {
-    // http://127.0.0.1:7545 - Ganache rpc server
-    const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:7545");
+    // RPC_URL - Ganache rpc server
+    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
     const wallet = new ethers.Wallet(
-        "20bb8abdade30edb3e495245b67fdba6ef5bf7d5636614dbdf3860262dd4e4f7" //ganache random private key
+        process.env.PRIVATE_KEY //ganache random private key
         , provider);
     // pass file path, encoding
     const abi = fs.readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf8");
