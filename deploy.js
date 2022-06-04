@@ -6,7 +6,7 @@ async function main() {
     // http://127.0.0.1:7545 - Ganache rpc server
     const provider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:7545");
     const wallet = new ethers.Wallet(
-        "3bc239262921495c11ee322dbd90b8c05f508140063bba6cd6d18e073b84fbb1" //ganache random private key
+        "20bb8abdade30edb3e495245b67fdba6ef5bf7d5636614dbdf3860262dd4e4f7" //ganache random private key
         , provider);
     // pass file path, encoding
     const abi = fs.readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf8");
@@ -18,8 +18,22 @@ async function main() {
     const contractFactory = new ethers.ContractFactory(abi, binary, wallet);
 
     console.log("Deploying... Please wait.");
-    const contract = await contractFactory.deploy(); // wait until contract is deployed
-    console.log(contract);
+
+    // deploy contract
+    // can pass arguments to your contract deployment
+    const contract = await contractFactory.deploy({gasLimit: 1000000}); 
+    // wait 1 block to send tx
+    await contract.deployTransaction.wait(1);
+
+    // get initial value
+    const currentFavoriteNumber = await contract.retrieve();
+    console.log(`Current favorite number: ${currentFavoriteNumber.toString()}`);
+
+    // update favorite number in contract
+    const transactionResponse = await contract.store("7");
+    const transactionReceipt = await transactionResponse.wait(1);
+    const updatedFavoriteNumber = await contract.retrieve();
+    console.log(`Updated favorite number is: ${updatedFavoriteNumber}`);
 }   
 
 main()
