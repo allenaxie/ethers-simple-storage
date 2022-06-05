@@ -6,9 +6,7 @@ async function main() {
     // RPC_URL - Ganache rpc server
     const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
 
-    const encryptedJson = fs.readFileSync("./.encryptedKey.json", "utf8");
-    let wallet = new ethers.Wallet.fromEncryptedJsonSync(encryptedJson, process.env.PRIVATE_KEY_PASSWORD);
-    wallet = await wallet.connect(provider);
+    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
 
     // pass file path, encoding
     const abi = fs.readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf8");
@@ -23,9 +21,11 @@ async function main() {
 
     // deploy contract
     // can pass arguments to your contract deployment
-    const contract = await contractFactory.deploy({gasLimit: 1000000}); 
+    const contract = await contractFactory.deploy({gasLimit: 800000}); 
     // wait 1 block to send tx
     await contract.deployTransaction.wait(1);
+
+    console.log(`Contract address: ${contract.address}`)
 
     // get initial value
     const currentFavoriteNumber = await contract.retrieve();
